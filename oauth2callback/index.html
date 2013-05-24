@@ -20,6 +20,15 @@
         text-align: center;
         margin-top: -100px;
       }
+      @media only screen 
+      and (min-device-width : 320px) 
+      and (max-device-width : 480px) {
+        #msg {
+          font-size: 100px;
+          height: 100px;
+          margin-top: -50px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -55,6 +64,128 @@
     days = endDate.getDate();
     endDate = formatDate(endDate);
 
+    return earns({
+ "kind": "adsense#report",
+ "totalMatchedRows": "24",
+ "headers": [
+  {
+   "name": "DATE",
+   "type": "DIMENSION"
+  },
+  {
+   "name": "EARNINGS",
+   "type": "METRIC_CURRENCY",
+   "currency": "USD"
+  }
+ ],
+ "rows": [
+  [
+   "2013-05-01",
+   "20.50"
+  ],
+  [
+   "2013-05-02",
+   "28.45"
+  ],
+  [
+   "2013-05-03",
+   "13.29"
+  ],
+  [
+   "2013-05-04",
+   "7.98"
+  ],
+  [
+   "2013-05-05",
+   "6.98"
+  ],
+  [
+   "2013-05-06",
+   "24.39"
+  ],
+  [
+   "2013-05-07",
+   "20.93"
+  ],
+  [
+   "2013-05-08",
+   "19.79"
+  ],
+  [
+   "2013-05-09",
+   "19.96"
+  ],
+  [
+   "2013-05-10",
+   "2.50"
+  ],
+  [
+   "2013-05-11",
+   "8.68"
+  ],
+  [
+   "2013-05-12",
+   "12.09"
+  ],
+  [
+   "2013-05-13",
+   "25.57"
+  ],
+  [
+   "2013-05-14",
+   "15.74"
+  ],
+  [
+   "2013-05-15",
+   "11.51"
+  ],
+  [
+   "2013-05-16",
+   "17.27"
+  ],
+  [
+   "2013-05-17",
+   "6.21"
+  ],
+  [
+   "2013-05-18",
+   "9.51"
+  ],
+  [
+   "2013-05-19",
+   "8.27"
+  ],
+  [
+   "2013-05-20",
+   "16.34"
+  ],
+  [
+   "2013-05-21",
+   "23.43"
+  ],
+  [
+   "2013-05-22",
+   "24.47"
+  ],
+  [
+   "2013-05-23",
+   "10.13"
+  ],
+  [
+   "2013-05-24",
+   "3.06"
+  ]
+ ],
+ "totals": [
+  "",
+  "357.06"
+ ],
+ "averages": [
+  "",
+  "14.88"
+ ]
+}
+);
     if (token) {
       script = document.createElement('script');
       script.src = [
@@ -80,7 +211,7 @@
           legend: {position: 'none'},
           hAxis: {gridlines: {count: data.length - 1}},
           vAxis: {gridlines: {count: -1}},
-          chartArea: {left: '5%', top: 0, width: '100%', height: '95%'}
+          chartArea: {left: '10%', top: 0, width: '100%', height: '90%'}
         };
 
     div.style.width = window.innerWidth + 'px';
