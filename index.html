@@ -1,10 +1,142 @@
 <!doctype html>
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Ad$en$e</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #msg {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        z-index: 1;
+        font: 200px/1 sans-serif;
+        opacity: .45;
+        width: 100%;
+        height: 200px;
+        text-align: center;
+        margin-top: -100px;
+        letter-spacing: -20px;
+      }
+      @media only screen 
+      and (min-device-width : 320px) 
+      and (max-device-width : 480px) {
+        #msg {
+          font-size: 100px;
+          height: 100px;
+          margin-top: -50px;
+          letter-spacing: -10px;
+        }
+      }
+    </style>
   </head>
   <body>
-<script>
-  location = 'https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fadsense.readonly&state=%2Fprofile&redirect_uri=' + encodeURIComponent(location.href) + 'oauth2callback&response_type=token&client_id=98377087779.apps.googleusercontent.com';
-</script>
-</body>
+    <div id="msg"></div>
+    <div id="chart_div"></div>
+    <script src="//www.google.com/jsapi"></script>
+    <script>
+      (function() {
+        var token;
+
+        location.hash.slice(1).split('&').some(function(a) {
+          var b = a.split('=');
+          if (b[0] === 'access_token') {
+            return (token = b[1]);
+          }
+        });
+
+        if (!token) {
+          location = 'https://accounts.google.com/o/oauth2/auth' +
+            '?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fadsense.readonly' +
+            '&state=%2Fprofile&redirect_uri=' +
+            encodeURIComponent(location.href) +
+            '&response_type=token' +
+            '&client_id=98377087779.apps.googleusercontent.com';
+        }
+
+        google.load('visualization', '1', {packages:['corechart']});
+        google.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+          var script, where, now, startDate, endDate;
+
+          function formatDate(d) {
+            function pad(s) {
+              s = s.toString();
+              return ('0' + s).slice(s.length - 1);
+            }
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' +
+              pad(d.getDate());
+          }
+
+          now = new Date();
+          startDate = formatDate(
+            new Date(now.getFullYear(), now.getMonth(), 1));
+          endDate = new Date(
+            new Date(now.getFullYear(), now.getMonth() + 1, 1) - 1);
+          days = endDate.getDate();
+          endDate = formatDate(endDate);
+
+          script = document.createElement('script');
+          script.src = [
+            'https://www.googleapis.com/adsense/v1.2/reports?access_token=',
+            token,
+            '&startDate=',
+            startDate,
+            '&endDate=',
+            endDate,
+            '&dimension=DATE&metric=EARNINGS&callback=earns'
+          ].join('');
+
+          where = document.getElementsByTagName('script');
+          where = where[where.length - 1];
+          where.parentNode.insertBefore(script, where);
+        }
+
+        function plot(data) {
+          var div = document.getElementById('chart_div'),
+              options = {
+                legend: {position: 'none'},
+                hAxis: {gridlines: {count: data.length - 1}},
+                vAxis: {gridlines: {count: -1}},
+                chartArea: {left: '10%', top: 0, width: '100%', height: '90%'}
+              };
+
+          div.style.width = window.innerWidth + 'px';
+          div.style.height = window.innerHeight + 'px';
+          data = google.visualization.arrayToDataTable(data);
+          chart = new google.visualization.LineChart(div);
+          chart.draw(data, options);
+        }
+
+        window.earns = function(results) {
+          var estimate, data, chart,
+              total = 0;
+
+          if (results.error) {
+            document.getElementById('msg').innerHTML = results.error.message;
+          }
+
+          if (!results.rows) {
+            return;
+          }
+
+          data = [['day', 'avg']];
+          results.rows.forEach(function(item, index) {
+            total += parseFloat(item[1], 10);
+            estimate = (total / (index + 1)) * days;
+            estimate = parseFloat((estimate).toFixed(2), 10);
+            data.push([index + 1, estimate]);
+          });
+          document.getElementById('msg').innerHTML = estimate.toLocaleString();
+
+          plot(data);
+        };
+      }());
+    </script>
+  </body>
 </html>
