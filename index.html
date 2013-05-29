@@ -124,10 +124,14 @@
               total = 0;
 
           if (results.error) {
+            if (results.error.message === 'Invalid Credentials') {
+              location = '/';
+            }
             document.getElementById('msg').innerHTML = results.error.message;
           }
 
           if (!results.rows) {
+            document.getElementById('msg').innerHTML = 'No Results';
             return;
           }
 
