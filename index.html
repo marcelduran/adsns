@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Ad$en$e</title>
+    <title>Ad$en$e Earnings Forecast</title>
     <style>
       body {
         margin: 0;
@@ -16,8 +16,8 @@
         top: 50%;
         left: 0;
         z-index: 1;
-        font: 200px/1 sans-serif;
-        opacity: .45;
+        font: bold 200px/1 sans-serif;
+        opacity: .5;
         width: 100%;
         height: 200px;
         text-align: center;
@@ -42,7 +42,7 @@
     <script src="//www.google.com/jsapi"></script>
     <script>
       (function() {
-        var token, now, days, data, timer;
+        var token, now, days, data, timer, month;
 
         location.hash.slice(1).split('&').some(function(a) {
           var b = a.split('=');
@@ -77,6 +77,9 @@
 
           // date range (from 1 to last day of month)
           now = new Date();
+          month = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November',
+            'December'][now.getMonth()];
           startDate = formatDate(
             new Date(now.getFullYear(), now.getMonth(), 1));
           endDate = new Date(
@@ -104,11 +107,18 @@
           var dt,
               div = document.getElementById('chart'),
               options = {
-                legend: {position: 'none'},
+                title: 'Ad$en$e Earnings Forecast',
                 hAxis: {gridlines: {count: data.length - 1}},
                 vAxis: {gridlines: {count: -1}},
-                chartArea: {left: '10%', top: 0, width: '90%', height: '90%'},
-                curveType: 'function'
+                series: {
+                  0: {color: '#6aa84f', curveType: 'none', pointSize: 5},
+                  1: {color: '#3c78d8', curveType: 'function', lineWidth: 4, targetAxisIndex: 1}
+                },
+                vAxes: {
+                  0: {textStyle: {color: '#6aa84f'}},
+                  1: {textStyle: {color: '#3c78d8'}}
+                },
+                theme: 'maximized'
               };
 
           // fit to available client area
@@ -123,7 +133,7 @@
 
         // api callback with earning results
         window.earnings = function(results) {
-          var i, estimate, chart,
+          var i, forecast, chart, avg,
               total = 0;
 
           if (results.error) {
@@ -138,9 +148,10 @@
             return (document.getElementById('msg').innerHTML = 'No Results');
           }
 
-          data = [['day', 'avg']];
+          data = [['Day', 'Daily Earnings', month + ' Forecast']];
           results.rows.forEach(function(item, index) {
-            var day = 1;
+            var amount,
+                day = 1;
 
             // adjust average for last day proportionally
             if ((index + 1) === now.getDate()) {
@@ -149,18 +160,19 @@
             }
 
             // calculate average
-            total += parseFloat(item[1], 10);
-            estimate = (total / (index + day)) * days;
-            estimate = parseFloat((estimate).toFixed(2), 10);
-            data.push([index + 1, estimate]);
+            amount = parseFloat(item[1], 10);
+            total += amount;
+            avg = total / (index + day);
+            forecast = parseFloat((avg * days).toFixed(2), 10);
+            data.push([index + 1, amount, forecast]);
           });
 
           for (i = results.rows.length + 1; i <= days; i++) {
-            data.push([i, estimate]);
+            data.push([i, avg, forecast]);
           }
 
-          // print estimated earnings
-          document.getElementById('msg').innerHTML = estimate.toFixed(2);
+          // print forecast earnings
+          document.getElementById('msg').innerHTML = forecast.toFixed(2);
 
           plot();
         };
