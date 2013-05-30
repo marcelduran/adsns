@@ -1,5 +1,9 @@
-# AD$en$e
+# AD$en$e Earnings Forecast
 
-Estimates how much you're going to make by EOM
+Forecasts how much you are going to make by the end of current month
 
 http://marcelduran.com/adsns
+
+or
+
+http://bit.ly/ADsns
