@@ -52,12 +52,12 @@
         });
 
         if (!token) {
-          location = 'https://accounts.google.com/o/oauth2/auth' +
+          return (location = 'https://accounts.google.com/o/oauth2/auth' +
             '?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fadsense.readonly' +
             '&state=%2Fprofile&redirect_uri=' +
             encodeURIComponent(location.href) +
             '&response_type=token' +
-            '&client_id=98377087779.apps.googleusercontent.com';
+            '&client_id=98377087779.apps.googleusercontent.com');
         }
 
         google.load('visualization', '1', {packages:['corechart']});
@@ -127,14 +127,14 @@
 
           if (results.error) {
             if (results.error.message === 'Invalid Credentials') {
-              location = '/';
+              return (location = '/');
             }
-            document.getElementById('msg').innerHTML = results.error.message;
+            return (document.getElementById('msg').innerHTML =
+              results.error.message);
           }
 
           if (!results.rows) {
-            document.getElementById('msg').innerHTML = 'No Results';
-            return;
+            return (document.getElementById('msg').innerHTML = 'No Results');
           }
 
           data = [['day', 'avg']];
