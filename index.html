@@ -11,7 +11,7 @@
         margin: 0;
         padding: 0;
       }
-      #msg {
+      #figures {
         position: absolute;
         top: 50%;
         left: 0;
@@ -19,25 +19,40 @@
         font: bold 200px/1 sans-serif;
         opacity: .5;
         width: 100%;
-        height: 200px;
+        height: 300px;
         text-align: center;
-        margin-top: -100px;
+        margin-top: -150px;
+      }
+      #forecast {
         letter-spacing: -20px;
+      }
+      #today {
+        font-size: 100px;
+        letter-spacing: -10px;
       }
       @media only screen 
       and (min-device-width : 320px) 
       and (max-device-width : 480px) {
-        #msg {
+        #figures {
+          height: 150px;
+          margin-top: -75px;
+        }
+        #forecast {
           font-size: 100px;
-          height: 100px;
-          margin-top: -50px;
           letter-spacing: -10px;
+        }
+        #today {
+          font-size: 50px;
+          letter-spacing: -5px;
         }
       }
     </style>
   </head>
   <body>
-    <div id="msg"></div>
+    <div id="figures">
+      <div id="forecast"></div>
+      <div id="today"></div>
+    </div>
     <div id="chart"></div>
     <script src="//www.google.com/jsapi"></script>
     <script>
@@ -112,11 +127,13 @@
                 vAxis: {gridlines: {count: -1}},
                 series: {
                   0: {color: '#6aa84f', curveType: 'none', pointSize: 5},
-                  1: {color: '#3c78d8', curveType: 'function', lineWidth: 4, targetAxisIndex: 1}
+                  1: {color: '#e69138', curveType: 'none', lineWidth: 4},
+                  2: {color: '#3c78d8', curveType: 'function', lineWidth: 4, targetAxisIndex: 2}
                 },
                 vAxes: {
                   0: {textStyle: {color: '#6aa84f'}},
-                  1: {textStyle: {color: '#3c78d8'}}
+                  1: {textStyle: {color: '#e69138'}},
+                  2: {textStyle: {color: '#3c78d8'}}
                 },
                 theme: 'maximized'
               };
@@ -140,16 +157,16 @@
             if (results.error.message === 'Invalid Credentials') {
               return (location = '/');
             }
-            return (document.getElementById('msg').innerHTML =
+            return (document.getElementById('forecast').innerHTML =
               results.error.message);
           }
 
           if (!results.rows) {
-            return (document.getElementById('msg').innerHTML = 'No Results');
+            return (document.getElementById('forecast').innerHTML = 'No Results');
           }
 
-          data = [['Day', 'Daily Earnings', month + ' Forecast']];
-          results.rows.forEach(function(item, index) {
+          data = [['Day', 'Daily Earnings', null, month + ' Forecast']];
+          results.rows.forEach(function(item, index, rows) {
             var amount,
                 day = 1;
 
@@ -164,15 +181,28 @@
             total += amount;
             avg = total / (index + day);
             forecast = parseFloat((avg * days).toFixed(2), 10);
-            data.push([index + 1, amount, forecast]);
+            data.push([index + 1, amount, null, forecast]);
+
+            // today
+            if (index === rows.length - 1) {
+              document.getElementById('today').innerHTML = 'Today ' +
+                (amount).toFixed(2);
+            }
           });
 
+          // fill remaining days of current month
           for (i = results.rows.length + 1; i <= days; i++) {
-            data.push([i, avg, forecast]);
+            data.push([i, avg, null, forecast]);
+          }
+
+          // add average data serie
+          data[0][2] = 'Average ' + avg.toFixed(2);
+          for (i = 1; i <= days; i++) {
+            data[i][2] = avg;
           }
 
           // print forecast earnings
-          document.getElementById('msg').innerHTML = forecast.toFixed(2);
+          document.getElementById('forecast').innerHTML = forecast.toFixed(2);
 
           plot();
         };
