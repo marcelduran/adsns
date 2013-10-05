@@ -97,7 +97,7 @@
             'July', 'August', 'September', 'October', 'November',
             'December'][now.getMonth()];
           startDate = formatDate(
-            new Date(now.getFullYear(), now.getMonth(), 1));
+            new Date(now.getFullYear() - 1, now.getMonth(), 1));
           endDate = new Date(
             new Date(now.getFullYear(), now.getMonth() + 1, 1) - 1);
           days = endDate.getDate();
@@ -151,8 +151,9 @@
 
         // api callback with earning results
         window.earnings = function(results) {
-          var i, forecast, chart, avg,
-              total = 0;
+          var i, forecast, chart, avg, lastDay,
+              total = 0,
+              totalMonth = 0;
 
           if (results.error) {
             if (results.error.message === 'Invalid Credentials') {
@@ -168,11 +169,14 @@
 
           data = [['Day', 'Daily Earnings', null, month + ' Forecast']];
           results.rows.forEach(function(item, index, rows) {
-            var amount,
+            var amount, currDay,
                 day = 1;
 
+            currDay = new Date(item[0].split('-'));
             // adjust average for last day proportionally
-            if ((index + 1) === now.getDate()) {
+            if (currDay.getDate() === now.getDate() &&
+                currDay.getMonth() === now.getMonth() &&
+                currDay.getFullYear() === now.getFullYear()) {
               day = (now.getHours() * 60 * 60 + now.getMinutes() * 60 +
                 now.getSeconds()) / 86400;
             }
@@ -180,21 +184,28 @@
             // calculate average
             amount = parseFloat(item[1], 10);
             total += amount;
-            avg = total / (index + day);
-            forecast = parseFloat((avg * days).toFixed(2), 10);
-            data.push([index + 1, amount, null, forecast]);
+
+            if (currDay.getFullYear() === now.getFullYear() &&
+                currDay.getMonth() === now.getMonth()) {
+              avg = total / (index + day);
+              forecast = parseFloat((avg * days).toFixed(2), 10);
+              totalMonth += amount;
+              data.push([currDay.getDate(), amount, null, forecast]);
+            }
 
             // totals
             if (index === rows.length - 1) {
               document.getElementById('today').innerHTML = 'Today ' +
                 (amount).toFixed(2);
               document.getElementById('month').innerHTML = 'Month ' +
-                (total).toFixed(2);
+                (totalMonth).toFixed(2);
             }
           });
 
           // fill remaining days of current month
-          for (i = results.rows.length + 1; i <= days; i++) {
+          lastDay = (new Date(results.rows[results.rows.length - 1][0]
+            .split('-'))).getDate();
+          for (i = lastDay + 1; i <= days; i++) {
             data.push([i, avg, null, forecast]);
           }
 
